@@ -31,6 +31,18 @@ export class AuthController {
 		return this.authService.login(email, password);
 	}
 
+	@Post('confirm-user')
+	async confirmUser(
+		@Body()
+		body: {
+			email: string;
+			confirmCode: string;
+		},
+	) {
+		const { email, confirmCode } = body;
+		return this.authService.verifyCode(confirmCode, email);
+	}
+
 	@Get('users')
 	async getAllUsers() {
 		return this.authService.getAllUsers();

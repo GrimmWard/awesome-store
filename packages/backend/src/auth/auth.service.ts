@@ -3,15 +3,18 @@ import {
 	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../../../../Users/Johnny/Downloads/test/src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '@/prisma/prisma.service';
+import { EmailService } from '@/email/email.service';
+import { generateCode } from '@/utils/utils';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private readonly prisma: PrismaService,
-		private jwtService: JwtService,
+		private readonly jwtService: JwtService,
+		private readonly emailService: EmailService,
 	) {}
 
 	private async generateTokens(userId: string, email: string) {
@@ -44,6 +47,8 @@ export class AuthService {
 		fullName: string,
 		address: string,
 	) {
+		const verificationCode = generateCode();
+
 		const existingUser = await this.prisma.user.findUnique({
 			where: { email },
 		});
@@ -54,12 +59,33 @@ export class AuthService {
 		}
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		return await this.prisma.user.create({
+		await this.prisma.user.create({
 			data: {
 				email,
 				password: hashedPassword,
 				fullName,
 				address,
+			},
+		});
+		await this.prisma.user.update({
+			where: { email },
+			data: { verificationCode: verificationCode },
+		});
+		await this.emailService.sendEmail(email, verificationCode);
+	}
+
+	async verifyCode(verificationCode: string, email: string) {
+		const user = this.prisma.user.findFirst({
+			where: { verificationCode },
+		});
+		if (!user)
+			throw new NotFoundException('Could not find verification code');
+
+		await this.prisma.user.update({
+			where: { email },
+			data: {
+				verificationCode: null,
+				isVerified: true,
 			},
 		});
 	}
@@ -87,5 +113,10 @@ export class AuthService {
 		return await this.prisma.user.findMany();
 	}
 
-	async logout() {}
+	async logout(email: string) {
+		this.prisma.user.update({
+			where: { email },
+			data: { refreshToken: null },
+		});
+	}
 }
