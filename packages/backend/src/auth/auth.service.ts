@@ -97,6 +97,9 @@ export class AuthService {
 		if (!user) {
 			throw new NotFoundException(`No such user with email ${email}`);
 		}
+		if (!user.isVerified) {
+			throw new UnauthorizedException('Your account is not verified yet');
+		}
 		const isPasswordMatch = await bcrypt.compare(password, user.password);
 		if (!isPasswordMatch) {
 			throw new UnauthorizedException();
