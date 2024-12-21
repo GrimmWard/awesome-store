@@ -4,112 +4,76 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@/prisma/prisma.service';
 import { EmailService } from '@/email/email.service';
 import { generateCode } from '@/utils/utils';
+import { TokenService } from '@/token/token.service';
+import { CreateUserDto } from '@/user/dto/create-user.dto';
+import { UserService } from '@/user/user.service';
+import { ConfirmEmailDto } from '@/user/dto/confirm-email.dto';
+import { LoginUserDto } from '@/user/dto/login.dto';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly jwtService: JwtService,
 		private readonly emailService: EmailService,
+		private readonly tokenService: TokenService,
+		private readonly userService: UserService,
 	) {}
 
-	private async generateTokens(userId: string, email: string) {
-		const payload = { id: userId, email };
-
-		const accessToken: string = this.jwtService.sign(payload, {
-			secret: process.env.ACCESS_SECRET,
-			expiresIn: '15m',
-		});
-
-		const refreshToken: string = this.jwtService.sign(payload, {
-			secret: process.env.REFRESH_SECRET,
-			expiresIn: '7d',
-		});
-
-		return { accessToken, refreshToken };
-	}
-
-	private async recordRefreshToken(userId: string, refreshToken: string) {
-		const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
-		await this.prisma.user.update({
-			where: { id: userId },
-			data: { refreshToken: hashedRefreshToken },
-		});
-	}
-
-	async register(
-		email: string,
-		password: string,
-		fullName: string,
-		address: string,
-	) {
+	async register(user: CreateUserDto) {
 		const verificationCode = generateCode();
+		const newUser = await this.userService.createUser(user);
 
-		const existingUser = await this.prisma.user.findUnique({
-			where: { email },
-		});
-		if (existingUser) {
-			throw new NotFoundException(
-				`User already exists with email ${email}`,
-			);
-		}
-		const hashedPassword = await bcrypt.hash(password, 10);
-
-		await this.prisma.user.create({
-			data: {
-				email,
-				password: hashedPassword,
-				fullName,
-				address,
-			},
-		});
-		await this.prisma.user.update({
-			where: { email },
-			data: { verificationCode: verificationCode },
-		});
-		await this.emailService.sendEmail(email, verificationCode);
+		await this.userService.updateUser(newUser, { verificationCode });
+		await this.emailService.sendEmail(user.email, verificationCode);
 	}
 
-	async verifyCode(verificationCode: string, email: string) {
-		const user = this.prisma.user.findFirst({
-			where: { verificationCode },
-		});
-		if (!user)
-			throw new NotFoundException('Could not find verification code');
+	async login(data: LoginUserDto) {
+		const user = await this.userService.getUserByEmail(data.email);
 
-		await this.prisma.user.update({
-			where: { email },
-			data: {
-				verificationCode: null,
-				isVerified: true,
-			},
-		});
-	}
-
-	async login(email: string, password: string) {
-		const user = await this.prisma.user.findUnique({
-			where: { email },
-		});
 		if (!user) {
-			throw new NotFoundException(`No such user with email ${email}`);
+			throw new NotFoundException('No such user with email');
 		}
 		if (!user.isVerified) {
 			throw new UnauthorizedException('Your account is not verified yet');
 		}
-		const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+		const isPasswordMatch = await bcrypt.compare(
+			data.password,
+			user.password,
+		);
 		if (!isPasswordMatch) {
 			throw new UnauthorizedException();
 		}
 
-		const tokens = await this.generateTokens(user.id, user.email);
+		const tokens = await this.tokenService.generateTokens(
+			user.id,
+			user.email,
+		);
 
-		await this.recordRefreshToken(user.id, tokens.refreshToken);
+		const hashedRefreshToken: string = await bcrypt.hash(
+			tokens.refreshToken,
+			10,
+		);
 
-		return tokens;
+		await this.userService.updateUser(user, {
+			refreshToken: hashedRefreshToken,
+		});
+	}
+
+	async verifyEmailCode(data: ConfirmEmailDto) {
+		const user = await this.userService.getUserByEmail(data.email);
+
+		if (user?.verificationCode !== data.verificationCode) {
+			throw new UnauthorizedException('Invalid token');
+		}
+		const dataToUpdate = {
+			isVerified: true,
+			verificationCode: null,
+		};
+		await this.userService.updateUser(user, dataToUpdate);
 	}
 
 	async getAllUsers() {

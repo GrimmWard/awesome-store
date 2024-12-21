@@ -1,6 +1,9 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {Public} from "@/common/decorators/public.decorator";
+import { Public } from '@/common/decorators/public.decorator';
+import { CreateUserDto } from '@/user/dto/create-user.dto';
+import { ConfirmEmailDto } from '@/user/dto/confirm-email.dto';
+import { LoginUserDto } from '@/user/dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -10,39 +13,27 @@ export class AuthController {
 	@Post('register')
 	async register(
 		@Body()
-		body: {
-			email: string;
-			password: string;
-			fullName: string;
-			address: string;
-		},
+		user: CreateUserDto,
 	) {
-		const { email, password, fullName, address } = body;
-		return this.authService.register(email, password, fullName, address);
+		return this.authService.register(user);
 	}
+
 	@Public()
 	@Post('login')
 	async login(
 		@Body()
-		body: {
-			email: string;
-			password: string;
-		},
+		data: LoginUserDto,
 	) {
-		const { email, password } = body;
-		return this.authService.login(email, password);
+		return this.authService.login(data);
 	}
+
 	@Public()
 	@Post('confirm-user')
 	async confirmUser(
 		@Body()
-		body: {
-			email: string;
-			confirmCode: string;
-		},
+		data: ConfirmEmailDto,
 	) {
-		const { email, confirmCode } = body;
-		return this.authService.verifyCode(confirmCode, email);
+		return this.authService.verifyEmailCode(data);
 	}
 
 	@Get('users')
