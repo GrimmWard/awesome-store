@@ -4,7 +4,6 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@/prisma/prisma.service';
 import { EmailService } from '@/email/email.service';
 import { generateCode } from '@/utils/utils';
 import { TokenService } from '@/token/token.service';
@@ -12,11 +11,11 @@ import { CreateUserDto } from '@/user/dto/create-user.dto';
 import { UserService } from '@/user/user.service';
 import { ConfirmEmailDto } from '@/user/dto/confirm-email.dto';
 import { LoginUserDto } from '@/user/dto/login.dto';
+import { LogoutDto } from '@/user/dto/logout.dto';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		private readonly prisma: PrismaService,
 		private readonly emailService: EmailService,
 		private readonly tokenService: TokenService,
 		private readonly userService: UserService,
@@ -48,26 +47,14 @@ export class AuthService {
 			throw new UnauthorizedException();
 		}
 
-		const tokens = await this.tokenService.generateTokens(
-			user.id,
-			user.email,
-		);
-
-		const hashedRefreshToken: string = await bcrypt.hash(
-			tokens.refreshToken,
-			10,
-		);
-
-		await this.userService.updateUser(user, {
-			refreshToken: hashedRefreshToken,
-		});
+		return await this.tokenService.generateTokens(user.id, user.email);
 	}
 
 	async verifyEmailCode(data: ConfirmEmailDto) {
 		const user = await this.userService.getUserByEmail(data.email);
 
 		if (user?.verificationCode !== data.verificationCode) {
-			throw new UnauthorizedException('Invalid token');
+			throw new UnauthorizedException('Invalid code');
 		}
 		const dataToUpdate = {
 			isVerified: true,
@@ -76,14 +63,11 @@ export class AuthService {
 		await this.userService.updateUser(user, dataToUpdate);
 	}
 
-	async getAllUsers() {
-		return await this.prisma.user.findMany();
-	}
+	async logout(data: LogoutDto) {
+		const user = await this.userService.getUserById(data.userId);
 
-	async logout(email: string) {
-		this.prisma.user.update({
-			where: { email },
-			data: { refreshToken: null },
-		});
+		if (!user) {
+			throw new NotFoundException('No such user in database');
+		}
 	}
 }

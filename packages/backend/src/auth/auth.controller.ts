@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from '@/common/decorators/public.decorator';
 import { CreateUserDto } from '@/user/dto/create-user.dto';
 import { ConfirmEmailDto } from '@/user/dto/confirm-email.dto';
 import { LoginUserDto } from '@/user/dto/login.dto';
+import { LogoutDto } from '@/user/dto/logout.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,8 +37,11 @@ export class AuthController {
 		return this.authService.verifyEmailCode(data);
 	}
 
-	@Get('users')
-	async getAllUsers() {
-		return this.authService.getAllUsers();
+	@Post('logout')
+	async logout(
+		@Body()
+		data: LogoutDto,
+	) {
+		return this.authService.logout(data);
 	}
 }

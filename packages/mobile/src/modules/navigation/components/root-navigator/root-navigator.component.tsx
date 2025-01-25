@@ -7,7 +7,9 @@ import {
 	RootStackParamList,
 } from '../../types/navigation.type';
 import { SCREEN_OPTIONS } from '../../constants';
-import { LoginScreen } from '../../../auth/screens/login/login.screen';
+import { LoginScreen } from 'src/modules/auth/screens/login';
+import { RegisterScreen } from 'src/modules/auth/screens/register';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator = () => {
@@ -17,6 +19,11 @@ export const RootNavigator = () => {
 				<Stack.Screen
 					name={NAVIGATION_KEYS.LOGIN}
 					component={LoginScreen}
+					options={SCREEN_OPTIONS}
+				/>
+				<Stack.Screen
+					name={NAVIGATION_KEYS.REGISTER}
+					component={RegisterScreen}
 					options={SCREEN_OPTIONS}
 				/>
 			</>

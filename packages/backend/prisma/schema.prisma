@@ -20,15 +20,9 @@ model User {
   phoneNumber       String?
   address           String
   password          String
-  role              Role     @default(USER)
   isVerified        Boolean  @default(false)
   refreshToken      String?
   verificationCode  String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-}
-
-enum Role {
-  ADMIN
-  USER
 }
