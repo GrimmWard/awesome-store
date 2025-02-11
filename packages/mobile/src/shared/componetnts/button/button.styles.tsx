@@ -16,4 +16,7 @@ export const styles = StyleSheet.create({
 		lineHeight: 19.36,
 		color: COLORS.white,
 	},
+	disabled: {
+		backgroundColor: COLORS.gray,
+	},
 });

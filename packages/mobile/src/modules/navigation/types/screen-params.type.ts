@@ -1,5 +1,5 @@
-import { Character } from '../../../shared/types';
-
-export type CharacterInfroParams = {
-	character: Character;
-};
+// import { Character } from '../../../shared/types';
+//
+// export type CharacterInfroParams = {
+// 	character: Character;
+// };

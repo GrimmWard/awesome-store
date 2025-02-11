@@ -1,18 +1,28 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "typeRoots": ["./src/types"],
+    "typeRoots": [
+      "./src/types"
+    ],
     "noImplicitReturns": false,
     "strict": true,
     "baseUrl": ".",
     "paths": {
-			"src/*": ["src/*"]
-		},
+      "src/*": [
+        "src/*"
+      ],
+      "assets/*": [
+        "assets/*"
+      ],
+      "screens/*": [
+        "src/modules/auth/screens/*"
+      ]
+    },
     "allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"skipLibCheck": false,
-		"resolveJsonModule": true,
-    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "skipLibCheck": false,
+    "resolveJsonModule": true,
+    "noImplicitAny": true
   },
   "include": [
     "**/*.ts",
@@ -20,6 +30,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "node_modules",
-		"babel.config.js", "index.js",
+    "babel.config.js",
+    "index.js"
   ]
 }
