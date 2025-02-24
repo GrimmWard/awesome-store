@@ -20,6 +20,7 @@ import {
 import { styles } from './input.styles';
 import { InputError } from 'src/shared/input-error';
 import { Eye } from 'assets/icons/eye';
+import { CrossedEye } from 'assets/icons/crossed-eye';
 
 type InputProps<
 	T extends FieldValues = FieldValues,
@@ -51,7 +52,7 @@ export function Input<
 	label,
 	extraInputContainerStyles,
 	extraErrorStyles = {},
-	secure,
+	secure = false,
 }: InputProps<T, N>) {
 	const [isFocused, setIsFocused] = React.useState(false);
 
@@ -80,6 +81,9 @@ export function Input<
 		onBlur();
 		setIsFocused(false);
 	};
+	const toggleVisibility = () => {
+		setHidePass(!hidePass);
+	};
 
 	return (
 		<View style={[styles.container, extraInputContainerStyles]}>
@@ -99,12 +103,14 @@ export function Input<
 				ref={inputRef}
 				secureTextEntry={hidePass}
 			/>
-			<TouchableOpacity>
-				<Eye />
-			</TouchableOpacity>
-			{/*TODO add icon to TextInput*/}
-			{/*TODO handle password or TextInput mb state*/}
-			{/*TODO make it for all inputs*/}
+			{secure && (
+				<TouchableOpacity
+					style={styles.icon}
+					onPress={toggleVisibility}
+				>
+					{hidePass ? <Eye /> : <CrossedEye />}
+				</TouchableOpacity>
+			)}
 			{/*TODO add backend and connect it????????*/}
 			<InputError<T>
 				control={control}

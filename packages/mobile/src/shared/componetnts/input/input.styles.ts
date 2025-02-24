@@ -40,4 +40,11 @@ export const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: COLORS.green,
 	},
+	icon: {
+		position: 'absolute',
+		right: 10,
+		top: 40,
+		paddingHorizontal: 5,
+		paddingVertical: 5,
+	},
 });

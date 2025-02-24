@@ -6,15 +6,24 @@ type ButtonProps = {
 	title: string;
 	btnStyle?: ViewStyle;
 	onPress?: () => void;
+	disabled?: boolean;
 };
 
-export const Button = ({ title, btnStyle, onPress }: ButtonProps) => {
+export const Button = ({
+	title,
+	btnStyle,
+	onPress,
+	disabled = false,
+}: ButtonProps) => {
 	return (
 		<View style={btnStyle}>
-			<TouchableOpacity style={[styles.button]} onPress={onPress}>
+			<TouchableOpacity
+				style={[styles.button, disabled && styles.disabled]}
+				onPress={disabled ? undefined : onPress}
+				disabled={disabled}
+			>
 				<Text style={styles.text}>{title}</Text>
 			</TouchableOpacity>
-			{/*TODO add grey color for button background and handle it with inputs*/}
 		</View>
 	);
 };

@@ -13,7 +13,10 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { Layout } from 'src/shared/componetnts/layout';
 
 export const LoginScreen = () => {
-	const { control } = useForm({ mode: 'onChange' });
+	const {
+		control,
+		formState: { isValid },
+	} = useForm({ mode: 'onChange' });
 	const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
 	return (
@@ -61,7 +64,11 @@ export const LoginScreen = () => {
 					justifyContent: 'flex-end',
 				}}
 			>
-				<Button title="Sign In" btnStyle={styles.button} />
+				<Button
+					title="Sign In"
+					btnStyle={styles.button}
+					disabled={!isValid}
+				/>
 
 				<AuthFooterComponent
 					text="Don’t have an account? "
