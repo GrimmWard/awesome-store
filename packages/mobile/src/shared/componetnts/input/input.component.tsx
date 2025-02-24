@@ -4,6 +4,7 @@ import {
 	Text,
 	TextInput,
 	TextStyle,
+	TouchableOpacity,
 	View,
 	ViewStyle,
 } from 'react-native';
@@ -18,6 +19,7 @@ import {
 
 import { styles } from './input.styles';
 import { InputError } from 'src/shared/input-error';
+import { Eye } from 'assets/icons/eye';
 
 type InputProps<
 	T extends FieldValues = FieldValues,
@@ -35,6 +37,7 @@ type InputProps<
 	label?: string;
 	extraInputContainerStyles?: StyleProp<ViewStyle>;
 	extraErrorStyles?: StyleProp<TextStyle>;
+	secure?: boolean;
 };
 
 export function Input<
@@ -48,11 +51,13 @@ export function Input<
 	label,
 	extraInputContainerStyles,
 	extraErrorStyles = {},
+	secure,
 }: InputProps<T, N>) {
 	const [isFocused, setIsFocused] = React.useState(false);
 
 	const inputRef = React.createRef<TextInput>();
 
+	const [hidePass, setHidePass] = React.useState(secure);
 	const {
 		field: { value, onBlur, onChange },
 		fieldState: { error },
@@ -92,8 +97,15 @@ export function Input<
 				]}
 				autoCapitalize="none"
 				ref={inputRef}
+				secureTextEntry={hidePass}
 			/>
-
+			<TouchableOpacity>
+				<Eye />
+			</TouchableOpacity>
+			{/*TODO add icon to TextInput*/}
+			{/*TODO handle password or TextInput mb state*/}
+			{/*TODO make it for all inputs*/}
+			{/*TODO add backend and connect it????????*/}
 			<InputError<T>
 				control={control}
 				field={name}

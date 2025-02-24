@@ -25,21 +25,34 @@ export const LoginScreen = () => {
 					marginBottom: 20.75,
 				}}
 			>
-				<Image
-					source={require('../../../../../assets/images/logo.png')}
-				/>
+				<Image source={require('assets/images/logo.png')} />
 			</View>
 			<Input
 				name="username"
 				control={control}
 				defaultValue=""
 				label="Email"
+				rules={{
+					required: 'Email is required',
+					pattern: {
+						value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+						message: 'Incorrect email address',
+					},
+				}}
 			/>
 			<Input
 				name="password"
 				control={control}
 				defaultValue=""
 				label="Password"
+				secure={true}
+				rules={{
+					required: 'Password is required',
+					minLength: {
+						value: 6,
+						message: 'Password must be at least 6 characters',
+					},
+				}}
 			/>
 			<View
 				style={{
@@ -58,6 +71,8 @@ export const LoginScreen = () => {
 					}}
 				/>
 			</View>
+			{/*TODO refactor code*/}
+			{/*TODO start implementing product screens*/}
 		</Layout>
 	);
 };

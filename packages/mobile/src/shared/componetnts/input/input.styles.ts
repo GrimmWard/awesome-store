@@ -3,10 +3,11 @@ import { COLORS, FONTS } from 'src/shared/styles';
 
 export const styles = StyleSheet.create({
 	container: {
-		paddingBottom: 20,
-		marginBottom: 20,
+		position: 'relative',
 		marginLeft: 16,
 		marginRight: 16,
+		paddingBottom: 20,
+		marginBottom: 20,
 	},
 	input: {
 		width: '100%',
@@ -29,11 +30,14 @@ export const styles = StyleSheet.create({
 	},
 	focused: {
 		borderWidth: 1,
+		borderColor: COLORS.blue,
 	},
 	wrong: {
 		borderWidth: 1,
+		borderColor: COLORS.red,
 	},
 	correct: {
 		borderWidth: 1,
+		borderColor: COLORS.green,
 	},
 });

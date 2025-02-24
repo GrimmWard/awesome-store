@@ -14,6 +14,7 @@ export const Button = ({ title, btnStyle, onPress }: ButtonProps) => {
 			<TouchableOpacity style={[styles.button]} onPress={onPress}>
 				<Text style={styles.text}>{title}</Text>
 			</TouchableOpacity>
+			{/*TODO add grey color for button background and handle it with inputs*/}
 		</View>
 	);
 };

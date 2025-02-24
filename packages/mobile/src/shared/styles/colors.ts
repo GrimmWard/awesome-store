@@ -6,4 +6,6 @@ export const COLORS = Object.freeze({
 	label_color: '#777777',
 	blue: '#3C82F6',
 	gray: '#A9A9A9',
+	red: '#FF0000',
+	green: '#22BB00',
 });
